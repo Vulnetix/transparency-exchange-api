@@ -1,4 +1,4 @@
-import { Visibility } from "@/shared/tea";
+import { Visibility } from "@shared/tea";
 
 /**
  * If only the serialNumber parameter is supplied, retrieve the latest version of the BOM from the repository.
