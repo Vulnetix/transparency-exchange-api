@@ -1,19 +1,14 @@
-import { Context, CreateTeaReleaseRequest } from "@shared/interfaces";
+import type { CreateTeaReleaseRequest } from "./types";
+import type { PrismaClient } from "@prisma/client";
 
-export const onRequestPost = async (context: Context) => {
+export async function onRequestPost<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, request } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         // Parse request body (data.json is already parsed by middleware)
-        const requestBody: CreateTeaReleaseRequest = data.json;
+        const requestBody: CreateTeaReleaseRequest = await request.json();
         
         // Validate required fields
         if (!requestBody.componentIdentifier) {
@@ -46,7 +41,7 @@ export const onRequestPost = async (context: Context) => {
         }
 
         // Check if component exists and belongs to the organization
-        const existingComponent = await data.prisma.teaComponent.findUnique({
+        const existingComponent = await prisma.teaComponent.findUnique({
             where: {
                 uuid: requestBody.componentIdentifier
             }
@@ -58,16 +53,8 @@ export const onRequestPost = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        if (existingComponent.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied to component` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Find the product that owns this component
-        const productComponent = await data.prisma.teaProductComponent.findFirst({
+        const productComponent = await prisma.teaProductComponent.findFirst({
             where: {
                 componentUuid: requestBody.componentIdentifier
             },
@@ -88,7 +75,7 @@ export const onRequestPost = async (context: Context) => {
         const now = Math.floor(Date.now() / 1000);
 
         // Create TEA Release in database
-        const teaRelease = await data.prisma.teaRelease.create({
+        const teaRelease = await prisma.teaRelease.create({
             data: {
                 uuid: releaseUuid,
                 productUuid: productComponent.productUuid,
@@ -100,14 +87,13 @@ export const onRequestPost = async (context: Context) => {
                 validUntilDate: null,
                 prerelease: requestBody.preRelease || false,
                 draft: false,
-                orgId: data.session.orgId,
                 createdAt: now,
                 updatedAt: now
             }
         });
 
         // Create the release-component relationship
-        await data.prisma.teaReleaseComponent.create({
+        await prisma.teaReleaseComponent.create({
             data: {
                 releaseUuid: releaseUuid,
                 componentUuid: requestBody.componentIdentifier,
@@ -145,17 +131,11 @@ export const onRequestPost = async (context: Context) => {
     }
 };
 
-export const onRequestGet = async (context: Context) => {
+export async function onRequestGet<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         // Parse query parameters
         const url = new URL(context.request.url);
@@ -165,16 +145,13 @@ export const onRequestGet = async (context: Context) => {
         const idValue = url.searchParams.get('idValue');
 
         // Build where clause
-        const where: any = {
-            orgId: data.session.orgId
-        };
+        const where: any = {};
 
         // For releases, we need to check component identifiers if filtering by idType/idValue
         if (idType && idValue) {
             // Find components with matching identifiers
-            const matchingComponents = await data.prisma.teaComponent.findMany({
+            const matchingComponents = await prisma.teaComponent.findMany({
                 where: {
-                    orgId: data.session.orgId,
                     identifiers: {
                         contains: JSON.stringify({ idType, idValue })
                     }
@@ -212,10 +189,10 @@ export const onRequestGet = async (context: Context) => {
         }
 
         // Get total count
-        const total = await data.prisma.teaRelease.count({ where });
+        const total = await prisma.teaRelease.count({ where });
 
         // Get releases with pagination
-        const releases = await data.prisma.teaRelease.findMany({
+        const releases = await prisma.teaRelease.findMany({
             where,
             skip: pageOffset,
             take: pageSize,

@@ -1,19 +1,51 @@
-import { Context, CreateTeaCollectionRequest } from "@shared/interfaces";
+import type { CreateTeaCollectionRequest, TeaLifecycle } from "./types";
+import type { PrismaClient } from "@prisma/client";
 
-export const onRequestPost = async (context: Context) => {
+// Helper function to create initial lifecycle
+function createInitialLifecycle(releaseIdentifier: string): TeaLifecycle {
+    return {
+        phase: 'created',
+        name: 'Collection Created',
+        description: `Collection created for release ${releaseIdentifier}`,
+        startedOn: new Date().toISOString(),
+        completedOn: null,
+        lastUpdated: new Date().toISOString()
+    };
+}
+
+// Helper function to transition lifecycle phases
+function transitionLifecycle(currentLifecycle: TeaLifecycle, newPhase: TeaLifecycle['phase'], description?: string): TeaLifecycle {
+    const now = new Date().toISOString();
+    return {
+        ...currentLifecycle,
+        phase: newPhase,
+        name: getPhaseDisplayName(newPhase),
+        description: description || currentLifecycle.description,
+        lastUpdated: now,
+        completedOn: (newPhase === 'completed' || newPhase === 'archived' || newPhase === 'deprecated') ? now : currentLifecycle.completedOn
+    };
+}
+
+// Helper function to get display name for lifecycle phases
+function getPhaseDisplayName(phase: TeaLifecycle['phase']): string {
+    switch (phase) {
+        case 'created': return 'Collection Created';
+        case 'in-progress': return 'In Progress';
+        case 'updated': return 'Updated';
+        case 'completed': return 'Completed';
+        case 'archived': return 'Archived';
+        case 'deprecated': return 'Deprecated';
+        default: return 'Unknown Phase';
+    }
+}
+
+export async function onRequestPost<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, request } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Parse request body (data.json is already parsed by middleware)
-        const requestBody: CreateTeaCollectionRequest = data.json;
+        const requestBody: CreateTeaCollectionRequest = await request.json();
         
         // Validate required fields
         if (!requestBody.releaseIdentifier) {
@@ -39,7 +71,7 @@ export const onRequestPost = async (context: Context) => {
         }
 
         // Check if release exists and belongs to the organization
-        const existingRelease = await data.prisma.teaRelease.findUnique({
+        const existingRelease = await prisma.teaRelease.findUnique({
             where: {
                 uuid: requestBody.releaseIdentifier
             },
@@ -54,38 +86,25 @@ export const onRequestPost = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        if (existingRelease.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied to release` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Generate UUID for the collection
         const collectionUuid = crypto.randomUUID();
         const now = Math.floor(Date.now() / 1000);
 
         // Create TEA Collection in database
-        const teaCollection = await data.prisma.teaCollection.create({
+        const teaCollection = await prisma.teaCollection.create({
             data: {
                 uuid: collectionUuid,
                 name: `Collection for ${existingRelease.product.name} v${existingRelease.version}`,
                 description: `Collection created for release ${requestBody.releaseIdentifier}. Update reason: ${requestBody.updateReason.type}${requestBody.updateReason.comment ? ` - ${requestBody.updateReason.comment}` : ``}`,
                 artifacts: JSON.stringify(requestBody.artifacts || []),
-                lifecycle: JSON.stringify({
-                    phase: `created`,
-                    startedOn: new Date().toISOString(),
-                    description: `Collection created for release`
-                }),
-                orgId: data.session.orgId,
+                lifecycle: JSON.stringify(createInitialLifecycle(requestBody.releaseIdentifier)),
                 createdAt: now,
                 updatedAt: now
             }
         });
 
         // Link the product to the collection
-        await data.prisma.teaCollection.update({
+        await prisma.teaCollection.update({
             where: {
                 uuid: collectionUuid
             },
@@ -122,17 +141,11 @@ export const onRequestPost = async (context: Context) => {
     }
 };
 
-export const onRequestGet = async (context: Context) => {
+export async function onRequestGet<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         // Parse query parameters
         const url = new URL(context.request.url);
@@ -140,15 +153,13 @@ export const onRequestGet = async (context: Context) => {
         const pageSize = Math.min(parseInt(url.searchParams.get('pageSize') || '100'), 1000);
 
         // Build where clause
-        const where = {
-            orgId: data.session.orgId
-        };
+        const where = {};
 
         // Get total count
-        const total = await data.prisma.teaCollection.count({ where });
+        const total = await prisma.teaCollection.count({ where });
 
         // Get collections with pagination
-        const collections = await data.prisma.teaCollection.findMany({
+        const collections = await prisma.teaCollection.findMany({
             where,
             skip: pageOffset,
             take: pageSize,
@@ -169,13 +180,17 @@ export const onRequestGet = async (context: Context) => {
             
             return {
                 uuid: collection.uuid,
+                name: collection.name,
+                description: collection.description,
                 version: 1, // Default version for now
                 releaseDate: new Date(collection.createdAt * 1000).toISOString(),
                 updateReason: {
                     type: 'INITIAL_RELEASE',
                     comment: collection.description || ''
                 },
-                artifacts: artifacts
+                artifacts: artifacts,
+                lifecycle: lifecycle,
+                products: collection.products.map(p => p.uuid)
             };
         });
 

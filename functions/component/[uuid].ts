@@ -1,17 +1,11 @@
-import { Context, UpdateTeaComponentRequest } from "@shared/interfaces";
+import type { UpdateTeaComponentRequest } from "../types";
+import type { PrismaClient } from "@prisma/client";
 
-export const onRequestPatch = async (context: Context) => {
-    const { data, params } = context;
-    
+export async function onRequestPatch<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
+    const { data, params, request } = context;
+    const prisma = data.prisma as PrismaClient;
+
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         const componentUuid = params.uuid as string;
         
         // Validate UUID format
@@ -23,7 +17,7 @@ export const onRequestPatch = async (context: Context) => {
         }
 
         // Check if component exists and belongs to the organization
-        const existingComponent = await data.prisma.teaComponent.findUnique({
+        const existingComponent = await prisma.teaComponent.findUnique({
             where: {
                 uuid: componentUuid
             }
@@ -36,15 +30,8 @@ export const onRequestPatch = async (context: Context) => {
             });
         }
 
-        if (existingComponent.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Parse request body
-        const requestBody: UpdateTeaComponentRequest = data.json;
+        const requestBody: UpdateTeaComponentRequest = await request.json();
         
         // Build update data
         const updateData: any = {
@@ -63,7 +50,7 @@ export const onRequestPatch = async (context: Context) => {
         if (requestBody?.subpath !== undefined) updateData.subpath = requestBody.subpath;
 
         // Update TEA Component in database
-        const updatedComponent = await data.prisma.teaComponent.update({
+        const updatedComponent = await prisma.teaComponent.update({
             where: {
                 uuid: componentUuid
             },
@@ -99,17 +86,11 @@ export const onRequestPatch = async (context: Context) => {
     }
 };
 
-export const onRequestDelete = async (context: Context) => {
+export async function onRequestDelete<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, params } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const componentUuid = params.uuid as string;
         
@@ -122,7 +103,7 @@ export const onRequestDelete = async (context: Context) => {
         }
 
         // Check if component exists and belongs to the organization
-        const existingComponent = await data.prisma.teaComponent.findUnique({
+        const existingComponent = await prisma.teaComponent.findUnique({
             where: {
                 uuid: componentUuid
             }
@@ -135,15 +116,8 @@ export const onRequestDelete = async (context: Context) => {
             });
         }
 
-        if (existingComponent.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Delete related records first (cascade delete)
-        await data.prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx) => {
             // Delete product-component relationships
             await tx.teaProductComponent.deleteMany({
                 where: {
@@ -179,17 +153,11 @@ export const onRequestDelete = async (context: Context) => {
     }
 };
 
-export const onRequestGet = async (context: Context) => {
+export async function onRequestGet<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, params } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const componentUuid = params.uuid as string;
         
@@ -202,7 +170,7 @@ export const onRequestGet = async (context: Context) => {
         }
 
         // Get component with releases
-        const component = await data.prisma.teaComponent.findUnique({
+        const component = await prisma.teaComponent.findUnique({
             where: {
                 uuid: componentUuid
             },
@@ -221,15 +189,6 @@ export const onRequestGet = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        // Check organization access
-        if (component.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Transform to API format
         const response = {
             uuid: component.uuid,

@@ -1,16 +1,11 @@
-import { Context, UpdateTeaReleaseRequest } from "@shared/interfaces";
+import type { UpdateTeaReleaseRequest } from "../types";
+import type { PrismaClient } from "@prisma/client";
 
-export const onRequestPatch = async (context: Context) => {
-    const { data, params } = context;
+export async function onRequestPatch<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
+    const { data, params, request } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const releaseUuid = params.uuid as string;
         
@@ -23,7 +18,7 @@ export const onRequestPatch = async (context: Context) => {
         }
 
         // Check if release exists and belongs to the organization
-        const existingRelease = await data.prisma.teaRelease.findUnique({
+        const existingRelease = await prisma.teaRelease.findUnique({
             where: {
                 uuid: releaseUuid
             }
@@ -35,16 +30,8 @@ export const onRequestPatch = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        if (existingRelease.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Parse request body
-        const requestBody: UpdateTeaReleaseRequest = data.json;
+        const requestBody: UpdateTeaReleaseRequest = await request.json();
         
         // Build update data
         const updateData: any = {
@@ -61,7 +48,7 @@ export const onRequestPatch = async (context: Context) => {
         if (requestBody.draft !== undefined) updateData.draft = requestBody.draft;
 
         // Update TEA Release in database
-        const updatedRelease = await data.prisma.teaRelease.update({
+        const updatedRelease = await prisma.teaRelease.update({
             where: {
                 uuid: releaseUuid
             },
@@ -69,7 +56,7 @@ export const onRequestPatch = async (context: Context) => {
         });
 
         // Get the components associated with this release
-        const releaseComponents = await data.prisma.teaReleaseComponent.findMany({
+        const releaseComponents = await prisma.teaReleaseComponent.findMany({
             where: {
                 releaseUuid: releaseUuid
             }
@@ -104,17 +91,11 @@ export const onRequestPatch = async (context: Context) => {
     }
 };
 
-export const onRequestDelete = async (context: Context) => {
+export async function onRequestDelete<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, params } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const releaseUuid = params.uuid as string;
         
@@ -127,7 +108,7 @@ export const onRequestDelete = async (context: Context) => {
         }
 
         // Check if release exists and belongs to the organization
-        const existingRelease = await data.prisma.teaRelease.findUnique({
+        const existingRelease = await prisma.teaRelease.findUnique({
             where: {
                 uuid: releaseUuid
             }
@@ -139,16 +120,8 @@ export const onRequestDelete = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        if (existingRelease.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Delete related records first (cascade delete)
-        await data.prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx) => {
             // Delete release-component relationships
             await tx.teaReleaseComponent.deleteMany({
                 where: {
@@ -177,17 +150,11 @@ export const onRequestDelete = async (context: Context) => {
     }
 };
 
-export const onRequestGet = async (context: Context) => {
+export async function onRequestGet<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, params } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const releaseUuid = params.uuid as string;
         
@@ -200,7 +167,7 @@ export const onRequestGet = async (context: Context) => {
         }
 
         // Get release with related data
-        const release = await data.prisma.teaRelease.findUnique({
+        const release = await prisma.teaRelease.findUnique({
             where: {
                 uuid: releaseUuid
             },
@@ -233,14 +200,6 @@ export const onRequestGet = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        if (release.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Collect all identifiers from associated components
         const allIdentifiers: any[] = [];
         release.components.forEach(rc => {

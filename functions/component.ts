@@ -1,19 +1,14 @@
-import { Context, CreateTeaComponentRequest } from "@shared/interfaces";
+import type { CreateTeaComponentRequest } from "./types";
+import type { PrismaClient } from "@prisma/client";
 
-export const onRequestPost = async (context: Context) => {
+export async function onRequestPost<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, request } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         // Parse request body (data.json is already parsed by middleware)
-        const requestBody: CreateTeaComponentRequest = data.json;
+        const requestBody: CreateTeaComponentRequest = await request.json();
         
         // Validate required fields
         if (!requestBody.name) {
@@ -42,7 +37,7 @@ export const onRequestPost = async (context: Context) => {
         const now = Math.floor(Date.now() / 1000);
 
         // Create TEA Component in database
-        const teaComponent = await data.prisma.teaComponent.create({
+        const teaComponent = await prisma.teaComponent.create({
             data: {
                 uuid: componentUuid,
                 name: requestBody.name,
@@ -61,14 +56,13 @@ export const onRequestPost = async (context: Context) => {
                 description: null,
                 releaseDate: null,
                 validUntilDate: null,
-                orgId: data.session.orgId,
                 createdAt: now,
                 updatedAt: now
             }
         });
 
         // Create the product-component relationship
-        await data.prisma.teaProductComponent.create({
+        await prisma.teaProductComponent.create({
             data: {
                 productUuid: requestBody.productIdentifier,
                 componentUuid: componentUuid,
@@ -106,17 +100,11 @@ export const onRequestPost = async (context: Context) => {
     }
 };
 
-export const onRequestGet = async (context: Context) => {
+export async function onRequestGet<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         // Parse query parameters
         const url = new URL(context.request.url);
@@ -126,9 +114,7 @@ export const onRequestGet = async (context: Context) => {
         const idValue = url.searchParams.get('idValue');
 
         // Build where clause
-        const where: any = {
-            orgId: data.session.orgId
-        };
+        const where: any = {};
 
         // Handle identifier filtering
         if (idType && idValue) {
@@ -138,10 +124,10 @@ export const onRequestGet = async (context: Context) => {
         }
 
         // Get total count
-        const total = await data.prisma.teaComponent.count({ where });
+        const total = await prisma.teaComponent.count({ where });
 
         // Get components with pagination
-        const components = await data.prisma.teaComponent.findMany({
+        const components = await prisma.teaComponent.findMany({
             where,
             skip: pageOffset,
             take: pageSize,
