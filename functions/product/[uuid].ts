@@ -1,16 +1,11 @@
-import { Context, UpdateTeaProductRequest } from "@shared/interfaces";
+import type { UpdateTeaProductRequest } from "../types";
+import type { PrismaClient } from "@prisma/client";
 
-export const onRequestGet = async (context: Context) => {
+export async function onRequestGet<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, params } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const productUuid = params.uuid as string;
         
@@ -23,7 +18,7 @@ export const onRequestGet = async (context: Context) => {
         }
 
         // Get product with components
-        const product = await data.prisma.teaProduct.findUnique({
+        const product = await prisma.teaProduct.findUnique({
             where: {
                 uuid: productUuid
             },
@@ -42,15 +37,6 @@ export const onRequestGet = async (context: Context) => {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-
-        // Check organization access
-        if (product.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Transform to API format
         const response = {
             identifier: product.uuid,
@@ -81,17 +67,11 @@ export const onRequestGet = async (context: Context) => {
     }
 };
 
-export const onRequestPatch = async (context: Context) => {
-    const { data, params } = context;
+export async function onRequestPatch<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
+    const { data, params, request } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const productUuid = params.uuid as string;
         
@@ -104,7 +84,7 @@ export const onRequestPatch = async (context: Context) => {
         }
 
         // Check if product exists and belongs to the organization
-        const existingProduct = await data.prisma.teaProduct.findUnique({
+        const existingProduct = await prisma.teaProduct.findUnique({
             where: {
                 uuid: productUuid
             }
@@ -117,15 +97,8 @@ export const onRequestPatch = async (context: Context) => {
             });
         }
 
-        if (existingProduct.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Parse request body
-        const requestBody: UpdateTeaProductRequest = data.json;
+        const requestBody: UpdateTeaProductRequest = await request.json();
         
         // Build update data
         const updateData: any = {
@@ -144,7 +117,7 @@ export const onRequestPatch = async (context: Context) => {
         if (requestBody.subpath !== undefined) updateData.subpath = requestBody.subpath;
 
         // Update TEA Product in database
-        const updatedProduct = await data.prisma.teaProduct.update({
+        const updatedProduct = await prisma.teaProduct.update({
             where: {
                 uuid: productUuid
             },
@@ -152,7 +125,7 @@ export const onRequestPatch = async (context: Context) => {
         });
 
         // Get components for this product
-        const productComponents = await data.prisma.teaProductComponent.findMany({
+        const productComponents = await prisma.teaProductComponent.findMany({
             where: {
                 productUuid: updatedProduct.uuid
             },
@@ -191,17 +164,11 @@ export const onRequestPatch = async (context: Context) => {
     }
 };
 
-export const onRequestDelete = async (context: Context) => {
+export async function onRequestDelete<PagesFunction>(context: EventContext<Env, string, Record<string, unknown>>): Promise<Response | void> {
     const { data, params } = context;
+    const prisma = data.prisma as PrismaClient;
     
     try {
-        // Authenticate user
-        if (!data.session?.memberUuid || !data.session?.orgId) {
-            return new Response(JSON.stringify({ error: `Authentication required` }), { 
-                status: 401,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
 
         const productUuid = params.uuid as string;
         
@@ -214,7 +181,7 @@ export const onRequestDelete = async (context: Context) => {
         }
 
         // Check if product exists and belongs to the organization
-        const existingProduct = await data.prisma.teaProduct.findUnique({
+        const existingProduct = await prisma.teaProduct.findUnique({
             where: {
                 uuid: productUuid
             }
@@ -227,15 +194,8 @@ export const onRequestDelete = async (context: Context) => {
             });
         }
 
-        if (existingProduct.orgId !== data.session.orgId) {
-            return new Response(JSON.stringify({ error: `Access denied` }), { 
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
         // Delete related records first (cascade delete)
-        await data.prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx) => {
             // Delete product-component relationships
             await tx.teaProductComponent.deleteMany({
                 where: {

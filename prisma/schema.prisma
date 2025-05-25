@@ -1,0 +1,120 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model TeaProduct {
+    uuid            String                @id
+    type            String
+    barcode         String?
+    sku             String?
+    vendor          String?
+    namespace       String
+    name            String
+    version         String?
+    qualifiers      String? // JSON array of qualifiers
+    identifiers     String? // JSON array of identifiers
+    subpath         String?
+    primaryLanguage String?
+    homepageUrl     String?
+    downloadUrl     String?
+    description     String?
+    releaseDate     String?
+    validUntilDate  String?
+    createdAt       Int
+    updatedAt       Int
+    releases        TeaRelease[]
+    components      TeaProductComponent[]
+    collections     TeaCollection[]       @relation("TeaCollectionProducts")
+
+    @@index([type, namespace, name])
+}
+
+model TeaComponent {
+    uuid            String                @id
+    type            String
+    barcode         String?
+    sku             String?
+    vendor          String?
+    namespace       String
+    name            String
+    version         String?
+    qualifiers      String? // JSON array of qualifiers
+    identifiers     String? // JSON array of identifiers
+    subpath         String?
+    primaryLanguage String?
+    homepageUrl     String?
+    downloadUrl     String?
+    description     String?
+    releaseDate     String?
+    validUntilDate  String?
+    createdAt       Int
+    updatedAt       Int
+    products        TeaProductComponent[]
+    releases        TeaReleaseComponent[]
+
+    @@index([type, namespace, name])
+}
+
+model TeaRelease {
+    uuid           String                @id
+    productUuid    String
+    product        TeaProduct            @relation(fields: [productUuid], references: [uuid])
+    tag            String
+    version        String?
+    name           String?
+    description    String?
+    releaseDate    String?
+    validUntilDate String?
+    prerelease     Boolean               @default(false)
+    draft          Boolean               @default(false)
+    createdAt      Int
+    updatedAt      Int
+    components     TeaReleaseComponent[]
+
+    @@index([productUuid])
+}
+
+model TeaCollection {
+    uuid        String       @id
+    name        String
+    description String?
+    artifacts   String? // JSON array of artifacts
+    lifecycle   String? // JSON object for lifecycle info
+    createdAt   Int
+    updatedAt   Int
+    products    TeaProduct[] @relation("TeaCollectionProducts")
+}
+
+model TeaProductComponent {
+    id            Int          @id @default(autoincrement())
+    productUuid   String
+    product       TeaProduct   @relation(fields: [productUuid], references: [uuid])
+    componentUuid String
+    component     TeaComponent @relation(fields: [componentUuid], references: [uuid])
+    relationship  String?
+    createdAt     Int
+
+    @@unique([productUuid, componentUuid])
+    @@index([productUuid])
+    @@index([componentUuid])
+}
+
+model TeaReleaseComponent {
+    id            Int          @id @default(autoincrement())
+    releaseUuid   String
+    release       TeaRelease   @relation(fields: [releaseUuid], references: [uuid])
+    componentUuid String
+    component     TeaComponent @relation(fields: [componentUuid], references: [uuid])
+    relationship  String?
+    createdAt     Int
+
+    @@unique([releaseUuid, componentUuid])
+    @@index([releaseUuid])
+    @@index([componentUuid])
+}

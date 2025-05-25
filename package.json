@@ -1,0 +1,23 @@
+{
+  "name": "transparency-exchange-api",
+  "version": "0.1.0-beta.2",
+  "private": true,
+  "packageManager": "yarn@4.9.1",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "generate-types": "wrangler types && prisma generate",
+    "postinstall": "npm run generate-types",
+    "deploy": "npm run generate-types && wrangler pages deployment create ./dist --project-name tea --branch main --upload-source-maps=true"
+  },
+  "dependencies": {
+    "@prisma/adapter-d1": "^6.8.2",
+    "@prisma/client": "^6.8.2",
+    "jose": "^6.0.11"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250129.0",
+    "@types/node": "^22.15.21",
+    "prisma": "6.8.2",
+    "wrangler": "4"
+  }
+}
