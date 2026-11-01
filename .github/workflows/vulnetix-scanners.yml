@@ -20,7 +20,7 @@ jobs:
     name: Bearer (SAST)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run Bearer
         continue-on-error: true
         shell: bash --noprofile --norc {0}
@@ -51,7 +51,7 @@ jobs:
     name: cdxgen (multi-ecosystem SBOM)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up Node.js
         continue-on-error: true
         uses: actions/setup-node@v4
@@ -83,7 +83,7 @@ jobs:
     name: CycloneDX npm SBOM
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up Node.js
         continue-on-error: true
         uses: actions/setup-node@v4
@@ -116,7 +116,7 @@ jobs:
     name: detect-secrets (secrets)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up uv
         continue-on-error: true
         uses: astral-sh/setup-uv@v6
@@ -230,7 +230,7 @@ jobs:
     name: ESLint (JavaScript lint)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up Node.js
         continue-on-error: true
         uses: actions/setup-node@v4
@@ -272,7 +272,7 @@ jobs:
     name: GitHub SBOM (SPDX)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Export the dependency graph
         continue-on-error: true
         env:
@@ -304,7 +304,7 @@ jobs:
     name: Gitleaks (Secrets)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run Gitleaks
         continue-on-error: true
         shell: bash --noprofile --norc {0}
@@ -330,7 +330,7 @@ jobs:
     name: Grype (SCA)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run Grype
         id: grype
         continue-on-error: true
@@ -357,7 +357,7 @@ jobs:
     name: njsscan (Node SAST)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up uv
         continue-on-error: true
         uses: astral-sh/setup-uv@v6
@@ -395,7 +395,7 @@ jobs:
     name: Nosey Parker (secrets)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run Nosey Parker
         continue-on-error: true
         shell: bash --noprofile --norc {0}
@@ -429,7 +429,7 @@ jobs:
     name: npm audit (Node SCA)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up Node.js
         continue-on-error: true
         uses: actions/setup-node@v4
@@ -463,7 +463,7 @@ jobs:
     name: OpenGrep (SAST)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run OpenGrep
         continue-on-error: true
         shell: bash --noprofile --norc {0}
@@ -497,7 +497,7 @@ jobs:
     name: OSV-Scanner (SCA)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run OSV-Scanner
         continue-on-error: true
         uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
@@ -519,7 +519,7 @@ jobs:
     name: Retire.js (JavaScript SCA)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up Node.js
         continue-on-error: true
         uses: actions/setup-node@v4
@@ -551,7 +551,7 @@ jobs:
     name: ScanCode Toolkit (license SBOM)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up uv
         continue-on-error: true
         uses: astral-sh/setup-uv@v6
@@ -609,7 +609,7 @@ jobs:
     name: Semgrep (SAST)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up uv
         continue-on-error: true
         uses: astral-sh/setup-uv@v6
@@ -639,7 +639,7 @@ jobs:
     name: Syft (CycloneDX SBOM)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Generate CycloneDX SBOM
         continue-on-error: true
         uses: anchore/sbom-action@v0.24.0
@@ -661,7 +661,7 @@ jobs:
     name: Trivy (filesystem CDX + SARIF)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Trivy filesystem (CycloneDX)
         continue-on-error: true
         uses: aquasecurity/trivy-action@v0.36.0
@@ -693,7 +693,7 @@ jobs:
     name: TruffleHog (secrets)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Run TruffleHog
         continue-on-error: true
         shell: bash --noprofile --norc {0}
@@ -821,7 +821,7 @@ jobs:
     name: CycloneDX Yarn SBOM
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up Node.js
         continue-on-error: true
         uses: actions/setup-node@v4
@@ -855,7 +855,7 @@ jobs:
     name: zizmor (GitHub Actions SAST)
     runs-on: [self-hosted, Linux, X64, vulnetix-local]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Set up uv
         continue-on-error: true
         uses: astral-sh/setup-uv@v6
@@ -905,7 +905,7 @@ jobs:
       VULNETIX_ORG_ID: ${{ secrets.VULNETIX_ORG_ID }}
       VULNETIX_API_KEY: ${{ secrets.VULNETIX_API_KEY }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Install Vulnetix CLI
         run: |
           # Download to a file, never `curl | sh`: a failed download would
