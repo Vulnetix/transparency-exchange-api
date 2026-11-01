@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250129.0",
-    "@types/node": "^22.15.21",
+    "@types/node": "^26.6.6",
     "prisma": "6.8.2",
     "wrangler": "4"
   }
