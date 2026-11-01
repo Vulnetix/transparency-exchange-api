@@ -38,7 +38,7 @@ jobs:
             echo '::warning::bearer produced no valid SARIF; dropping the artifact'
             rm -f bearer.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: bearer
@@ -70,7 +70,7 @@ jobs:
             echo '::warning::cdxgen produced no valid CycloneDX JSON; dropping the artifact'
             rm -f cdxgen.cdx.json
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: cdxgen
@@ -103,7 +103,7 @@ jobs:
             echo '::warning::cyclonedx npm produced no valid CycloneDX JSON; dropping the artifact'
             rm -f cyclonedx-node.cdx.json
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: cyclonedx-node
@@ -217,7 +217,7 @@ jobs:
             echo '::warning::detect-secrets produced no valid SARIF; dropping the artifact'
             rm -f detect-secrets-results.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: detect-secrets
@@ -259,7 +259,7 @@ jobs:
             echo '::warning::eslint produced no valid SARIF; dropping the artifact'
             rm -f eslint.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: eslint
@@ -291,7 +291,7 @@ jobs:
             echo '::warning::GitHub returned no valid SPDX; dropping the artifact'
             rm -f github-sbom.spdx.json
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: github-sbom
@@ -317,7 +317,7 @@ jobs:
             echo "::warning::gitleaks produced no valid SARIF; dropping the artifact"
             rm -f gitleaks.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: gitleaks
@@ -344,7 +344,7 @@ jobs:
         shell: bash --noprofile --norc {0}
         run: |
           cp "${{ steps.grype.outputs.sarif }}" grype.sarif
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: grype
@@ -382,7 +382,7 @@ jobs:
             echo '::warning::njsscan produced no valid SARIF; dropping the artifact'
             rm -f njsscan.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: njsscan
@@ -416,7 +416,7 @@ jobs:
             echo '::warning::noseyparker produced no valid SARIF; dropping the artifact'
             rm -f noseyparker.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: noseyparker
@@ -450,7 +450,7 @@ jobs:
             echo '::warning::npm audit produced no valid SARIF; dropping the artifact'
             rm -f npm-audit.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: npm-audit
@@ -484,7 +484,7 @@ jobs:
             echo '::warning::opengrep produced no valid SARIF; dropping the artifact'
             rm -f opengrep.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: opengrep
@@ -506,7 +506,7 @@ jobs:
             --format=sarif
             --output=osv.sarif
             ./
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: osv-scanner
@@ -538,7 +538,7 @@ jobs:
             echo '::warning::retirejs produced no valid CycloneDX JSON; dropping the artifact'
             rm -f retirejs.cdx.json
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: retirejs
@@ -596,7 +596,7 @@ jobs:
                 scancode.cdx.json > scancode.clean.json \
               && mv scancode.clean.json scancode.cdx.json
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: scancode
@@ -626,7 +626,7 @@ jobs:
             exit 0
           fi
           uvx --from semgrep semgrep scan --config auto --sarif --output semgrep.sarif .
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: semgrep
@@ -648,7 +648,7 @@ jobs:
           format: cyclonedx-json
           output-file: sbom.cdx.json
           path: .
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: syft
@@ -678,7 +678,7 @@ jobs:
           output: trivy-fs.sarif
           scan-ref: .
           scan-type: fs
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: trivy-fs
@@ -808,7 +808,7 @@ jobs:
             echo '::warning::trufflehog produced no valid SARIF; dropping the artifact'
             rm -f trufflehog.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: trufflehog
@@ -842,7 +842,7 @@ jobs:
             echo '::warning::cyclonedx yarn produced no valid CycloneDX JSON; dropping the artifact'
             rm -f yarn-cyclonedx.cdx.json
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: yarn-cyclonedx
@@ -884,7 +884,7 @@ jobs:
             echo "::warning::zizmor produced no valid SARIF; dropping the artifact"
             rm -f zizmor.sarif
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: zizmor
