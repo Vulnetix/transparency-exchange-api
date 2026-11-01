@@ -19,6 +19,11 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@prisma/*"
         update-types: ["version-update:semver-major"]
+      # The functions run on workerd's Node compatibility layer, not a current
+      # Node release, and nothing type-checks them in CI; typing against a
+      # newer Node major would let code compile against APIs workerd lacks.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
