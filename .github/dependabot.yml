@@ -15,8 +15,11 @@ updates:
       # Prisma 7 drops the datasource `url` (it moves to prisma.config.ts) and
       # the driverAdapters preview flag that prisma/schema.prisma relies on, so
       # `prisma generate` (run by postinstall) fails. Move to 7 as a migration.
+      # The CLI also stays on 6.8.2: from 6.9 its @prisma/config pins
+      # deepmerge-ts 7.1.5 (GHSA-ggr8-5vv4-36mx, fixed only in 8, which only
+      # Prisma 7 pulls in).
       - dependency-name: "prisma"
-        update-types: ["version-update:semver-major"]
+        versions: [">=6.9.0"]
       - dependency-name: "@prisma/*"
         update-types: ["version-update:semver-major"]
       # The functions run on workerd's Node compatibility layer, not a current
