@@ -61,7 +61,7 @@ jobs:
         continue-on-error: true
         shell: bash --noprofile --norc {0}
         run: |
-          if ! find . -maxdepth 4 -type f \( -name package-lock.json -o -name go.mod -o -name requirements.txt -o -name pyproject.toml -o -name pom.xml -o -name build.gradle -o -name Cargo.lock -o -name composer.lock -o -name Gemfile.lock -o -name '*.csproj' \) -print | head -n 1 | grep -q .; then
+          if ! find . -maxdepth 4 -type f \( -name package-lock.json -o -name yarn.lock -o -name go.mod -o -name requirements.txt -o -name pyproject.toml -o -name pom.xml -o -name build.gradle -o -name Cargo.lock -o -name composer.lock -o -name Gemfile.lock -o -name '*.csproj' \) -print | head -n 1 | grep -q .; then
             echo '::notice::no supported package manifest found; skipping cdxgen'
             exit 0
           fi
