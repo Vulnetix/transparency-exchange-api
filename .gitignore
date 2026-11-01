@@ -171,8 +171,7 @@ dist
 
 .vscode-test
 
-# yarn v2
-.yarn/
+# yarn v2 (.yarn/ itself is handled at the top, which keeps .yarn/plugins)
 .pnp.\*
 
 # wrangler project
