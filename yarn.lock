@@ -400,10 +400,10 @@
     "@prisma/driver-adapter-utils" "6.19.3"
     ky "1.7.5"
 
-"@prisma/client@^6.8.2":
-  version "6.19.2"
-  resolved "https://registry.npmjs.org/@prisma/client/-/client-6.19.2.tgz"
-  integrity sha512-gR2EMvfK/aTxsuooaDA32D8v+us/8AAet+C3J1cc04SW35FPdZYgLF+iN4NDLUgAaUGTKdAB0CYenu1TAgGdMg==
+"@prisma/client@^6.19.3":
+  version "6.19.3"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-6.19.3.tgz#b04413143eeb0812a323451bbc1a22767cee11ef"
+  integrity sha512-mKq3jQFhjvko5LTJFHGilsuQs+W+T3Gm451NzuTDGQxwCzwXHYnIu2zGkRoW+Exq3Rob7yp2MfzSrdIiZVhrBg==
 
 "@prisma/config@6.19.3":
   version "6.19.3"
