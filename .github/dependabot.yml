@@ -11,6 +11,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # Prisma 7 drops the datasource `url` (it moves to prisma.config.ts) and
+      # the driverAdapters preview flag that prisma/schema.prisma relies on, so
+      # `prisma generate` (run by postinstall) fails. Move to 7 as a migration.
+      - dependency-name: "prisma"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
