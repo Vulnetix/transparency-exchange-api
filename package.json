@@ -10,7 +10,7 @@
     "deploy": "npm run generate-types && wrangler pages deployment create ./dist --project-name tea --branch main --upload-source-maps=true"
   },
   "dependencies": {
-    "@prisma/adapter-d1": "^6.8.2",
+    "@prisma/adapter-d1": "^7.10.1",
     "@prisma/client": "^6.8.2",
     "jose": "^6.0.11"
   },
