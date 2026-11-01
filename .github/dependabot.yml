@@ -1,0 +1,18 @@
+# Dependabot version updates. Security updates are enabled in the repository
+# settings and run regardless of this file; this file adds the routine version
+# bumps. The open undici, ws, sharp and esbuild alerts all come in through
+# wrangler (miniflare pins them exactly), so they only clear when wrangler
+# itself moves, which a security update for the transitive package cannot do.
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
