@@ -42,10 +42,10 @@
   resolved "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-4.20260317.1.tgz"
   integrity sha512-+G4eVwyCpm8Au1ex8vQBCuA9wnwqetz4tPNRoB/53qvktERWBRMQnrtvC1k584yRE3emMThtuY0gWshvSJ++PQ==
 
-"@cloudflare/workers-types@^5.20261102.1":
-  version "5.20261102.1"
-  resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-5.20261102.1.tgz#6370c92081536c14b76e037f6530a0bf0d96ebcb"
-  integrity sha512-rRNznLGla+8vRdToTN/5M+AzlopILSLLZ3qo2L5Ku/dY792iOlX/K9ZLkLnLYji1jycv7+FB12hiE+fFjVgMrw==
+"@cloudflare/workers-types@^5.20261104.1":
+  version "5.20261104.1"
+  resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-5.20261104.1.tgz#2f144fa0501173ac44a532b7cc92a37bf2eb3714"
+  integrity sha512-XSPcK88JXnW/oC82wuXvaP7vgyk2myydugbgOd/RcLKwqkwW0cP09Ozp9ItACa4IAZ7uKtMIfxZpUTXajYVd1Q==
 
 "@cspotcode/source-map-support@0.8.1":
   version "0.8.1"
