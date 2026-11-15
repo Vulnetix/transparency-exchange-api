@@ -12,7 +12,7 @@
   "dependencies": {
     "@prisma/adapter-d1": "^6.19.3",
     "@prisma/client": "^6.19.3",
-    "jose": "^6.2.15"
+    "jose": "^6.2.17"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261104.1",
